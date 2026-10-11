@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>tiny-shop · Support desk</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="bar">
+  <strong>tiny-shop</strong> <span class="muted">Support desk</span>
+  <span id="mode" class="badge"></span>
+  <nav class="tabs">
+    <button class="tab active" data-view="inbox">Inbox</button>
+    <button class="tab" data-view="week">This week</button>
+  </nav>
+</header>
+
+<main id="inbox" class="view">
+  <aside id="list" class="list"></aside>
+  <section class="detail">
+    <article id="email" class="card email"></article>
+
+    <div class="actions">
+      <button data-action="fill">✦ Fill ticket</button>
+      <button data-action="route">✦ Route it</button>
+      <button data-action="reply">✦ Draft a reply</button>
+    </div>
+    <div id="results"></div>
+
+    <div class="card composer">
+      <div class="row">
+        <h3>Your reply</h3>
+        <select id="draft-picker" aria-label="Load a sample draft"><option value="">Load a sample draft…</option></select>
+      </div>
+      <textarea id="reply-text" rows="7" placeholder="Type a reply, or load a sample draft"></textarea>
+      <div class="row">
+        <span class="row-left"><button data-action="tidy">✦ Tidy up</button> <button data-action="check" class="ghost">✦ Check my reply</button></span>
+        <button id="send" class="ghost">Send (demo)</button>
+      </div>
+      <div id="tidy-results"></div>
+    </div>
+  </section>
+</main>
+
+<main id="week" class="view" hidden>
+  <section class="card">
+    <div class="row">
+      <div>
+        <h2>This week's themes</h2>
+        <p class="muted" id="week-count"></p>
+      </div>
+      <button data-action="themes">✦ Find themes</button>
+    </div>
+    <div id="themes"></div>
+  </section>
+</main>
+
+<script src="app.js" type="module"></script>
+</body>
+</html>

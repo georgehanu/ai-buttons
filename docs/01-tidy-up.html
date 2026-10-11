@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 1: Tidy up · AI Buttons</title>
+<meta name="description" content="Tidy up. Part of AI Buttons: small AI features for real web apps, built as workflows.">
+<meta property="og:title" content="Lesson 1: Tidy up · AI Buttons">
+<meta property="og:description" content="Tidy up. Part of AI Buttons: small AI features for real web apps, built as workflows.">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:creator" content="@georgehanu">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="index.html"><span class="loop">✦</span> AI Buttons</a>
+  <nav class="top-links">
+    <a href="https://github.com/georgehanu/ai-buttons">GitHub</a>
+    <a class="follow" href="https://x.com/georgehanu">Follow @georgehanu</a>
+  </nav>
+</header>
+<div class="layout">
+  <aside class="side"><div class="side-title">Lessons</div><a href="01-tidy-up.html" aria-current="page"><span>1</span>Tidy up</a>
+<a href="02-fill-from-email.html"><span>2</span>Fill from email</a>
+<a href="03-route-it.html"><span>3</span>Route it</a>
+<a href="04-weekly-themes.html"><span>4</span>This week's themes</a>
+<a href="05-draft-and-check.html"><span>5</span>Draft and check</a>
+<a href="06-ship-it.html"><span>6</span>Ship it</a>
+<a href="07-your-own-button.html"><span>+</span>Design your own AI button</a></aside>
+  <main class="lesson"><div class="meta"><span>Run</span><code>npm run lesson1</code><a href="https://github.com/georgehanu/ai-buttons/blob/main/src/features/tidy.ts">View the code →</a></div><h1>Lesson 1 · Tidy up</h1>
+<p>The smallest useful AI feature: a button under a text box that fixes the wording.</p>
+<p>Most apps build it like this: send the text, get new text back, replace the text box. It works, and people quietly stop using it. They can&#39;t see what changed, they can&#39;t keep half of it, and once in a while it rewrites a sentence they cared about.</p>
+<p>We&#39;ll build it so the person stays in charge. <strong>The model proposes. Code applies. The person decides.</strong></p>
+<h2>Ask for changes, not a new text</h2>
+<p>Instead of &quot;rewrite this&quot;, we ask for a list of edits:</p>
+<pre><code class="hljs language-json"><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">&quot;changes&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
+    <span class="hljs-punctuation">{</span> <span class="hljs-attr">&quot;before&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;so sorry bout the mug!!&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;after&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;I&#x27;m so sorry about the mug.&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;why&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Spelling, and one full stop reads calmer.&quot;</span> <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-punctuation">{</span> <span class="hljs-attr">&quot;before&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot; thx alot&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;after&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;\n\nThanks,\nThe tiny-shop team&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;why&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Our usual sign-off, on its own line.&quot;</span> <span class="hljs-punctuation">}</span>
+  <span class="hljs-punctuation">]</span>
+<span class="hljs-punctuation">}</span>
+</code></pre><p>The UI shows each change with a checkbox. The person unticks what they don&#39;t want and presses <strong>Apply</strong>. Applying is plain code:</p>
+<pre><code class="hljs language-ts"><span class="hljs-keyword">export</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">applyChanges</span>(<span class="hljs-params"><span class="hljs-attr">draft</span>: <span class="hljs-built_in">string</span>, <span class="hljs-attr">accepted</span>: <span class="hljs-title class_">Change</span>[]</span>) {
+  <span class="hljs-keyword">return</span> accepted.<span class="hljs-title function_">reduce</span>(<span class="hljs-function">(<span class="hljs-params">text, change</span>) =&gt;</span> text.<span class="hljs-title function_">replace</span>(change.<span class="hljs-property">before</span>, <span class="hljs-function">() =&gt;</span> change.<span class="hljs-property">after</span>), draft);
+}
+</code></pre><p>No second AI call, no surprises. Untick a change and that sentence stays exactly as it was typed.</p>
+<h2>Getting JSON back reliably</h2>
+<p>We pass a JSON schema with the request:</p>
+<pre><code class="hljs language-ts"><span class="hljs-keyword">const</span> { changes } = <span class="hljs-keyword">await</span> askJson&lt;{ <span class="hljs-attr">changes</span>: <span class="hljs-title class_">Change</span>[] }&gt;({
+  <span class="hljs-attr">step</span>: <span class="hljs-string">&quot;tidy&quot;</span>,
+  <span class="hljs-attr">model</span>: <span class="hljs-string">&quot;smart&quot;</span>,
+  <span class="hljs-attr">system</span>: <span class="hljs-variable constant_">SYSTEM</span>,
+  <span class="hljs-attr">prompt</span>: <span class="hljs-string">`Draft:\n&quot;<span class="hljs-subst">${draft}</span>&quot;`</span>,
+  <span class="hljs-attr">schema</span>: <span class="hljs-variable constant_">SCHEMA</span>,
+  <span class="hljs-comment">// …</span>
+});
+</code></pre><p>Under the hood that&#39;s <code>output_config: { format: { type: &quot;json_schema&quot;, schema } }</code> on the Messages API. Claude&#39;s reply is then guaranteed to match the schema, so <code>JSON.parse</code> won&#39;t fail. (The SDK also has <code>client.messages.parse()</code> with a Zod helper if you prefer that. We use the plain schema so you can see what&#39;s sent.)</p>
+<p>Schemas have one more job: <strong>descriptions are instructions.</strong> <code>&quot;before&quot;: &quot;Exact text from the draft to replace.&quot;</code> is a tiny prompt attached to that one field.</p>
+<h2>Trust, but check</h2>
+<p>The model can still misquote: a different apostrophe, a missing space. Then <code>before</code> isn&#39;t in the draft and the edit can&#39;t be applied. So we check, in code:</p>
+<pre><code class="hljs language-ts"><span class="hljs-keyword">return</span> changes.<span class="hljs-title function_">map</span>(<span class="hljs-function">(<span class="hljs-params">change</span>) =&gt;</span> ({ ...change, <span class="hljs-attr">applies</span>: draft.<span class="hljs-title function_">includes</span>(change.<span class="hljs-property">before</span>) }));
+</code></pre><p>The UI greys those edits out with &quot;Can&#39;t apply: text not found&quot; rather than pretending. Small detail, but it&#39;s the difference between a feature people trust and one they double-check every time.</p>
+<h2>Teach the tone with two examples</h2>
+<p>The system prompt includes two short before/after examples in the shop&#39;s voice. That&#39;s <strong>few-shot prompting</strong>: showing beats describing. &quot;Friendly and plain&quot; means different things to different people. Two examples pin it down.</p>
+<p>Examples have a side effect: they leak. Show a model a reply about Mark&#39;s refund, and sometimes &quot;5 working days&quot; turns up in Ana&#39;s mug reply too. So the prompt says where the examples stop: <em>&quot;The examples are about other customers. Take only their voice from them: never carry over a name, product, number or detail.&quot;</em></p>
+<p>And one more: <em>&quot;Keep every promise and fact exactly as the writer made it.&quot;</em> A tidy-up button must never quietly change &quot;within 5 working days&quot; into &quot;soon&quot;. Tidying is about wording. Checking promises is a different job, and lesson 5 has a button for that.</p>
+<h2>Run it</h2>
+<pre><code class="hljs language-bash">npm run lesson1     <span class="hljs-comment"># in the terminal</span>
+npm start           <span class="hljs-comment"># the app: load a sample draft, press Tidy up</span>
+</code></pre><h2>Try this</h2>
+<ul>
+<li>Write your own house-style examples. Notice how fast the output changes.</li>
+<li>Remove the &quot;keep every promise&quot; line, run live, and feed it a draft with &quot;we&#39;ll refund you tomorrow&quot;. Does it survive?</li>
+</ul>
+<aside class="cta"><strong>Found this useful?</strong> I post small, practical AI coding examples most days.
+  <a href="https://x.com/georgehanu">Follow @georgehanu on X</a></aside><nav class="pager"><span></span><a class="next" href="02-fill-from-email.html"><small>Lesson 2 →</small>Fill from email</a></nav></main>
+</div>
+<footer class="foot">
+  <p>Written by <a href="https://x.com/georgehanu">George Hanu</a>. I teach developers to build software with AI: small examples, explained clearly.</p>
+  <p><a href="https://x.com/georgehanu">Follow on X</a> · <a href="https://github.com/georgehanu/ai-buttons">Source on GitHub</a> · MIT licensed</p>
+</footer>
+</body>
+</html>

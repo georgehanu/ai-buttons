@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Buttons · Small AI features for real web apps</title>
+<meta name="description" content="Six short lessons: build small AI features into a real web app as workflows. TypeScript, runs without an API key. By George Hanu.">
+<meta property="og:title" content="AI Buttons · Small AI features for real web apps">
+<meta property="og:description" content="Six short lessons: build small AI features into a real web app as workflows. TypeScript, runs without an API key. By George Hanu.">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:creator" content="@georgehanu">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="index.html"><span class="loop">✦</span> AI Buttons</a>
+  <nav class="top-links">
+    <a href="https://github.com/georgehanu/ai-buttons">GitHub</a>
+    <a class="follow" href="https://x.com/georgehanu">Follow @georgehanu</a>
+  </nav>
+</header>
+
+<main class="home">
+  <section class="hero">
+    <p class="eyebrow">Free · 6 lessons · TypeScript · A real web app</p>
+    <h1>AI features that feel like<br><em>normal buttons.</em></h1>
+    <p class="lead">Tidy up a reply. Fill a form from an email. Route a ticket. Spot this week's themes. Draft a reply that
+      passes your written rules. Five small AI features in a working support desk, each built as a workflow you can read, test and trust.</p>
+    <div class="actions">
+      <a class="btn primary" href="01-tidy-up.html">Start lesson 1</a>
+      <a class="btn" href="https://github.com/georgehanu/ai-buttons">Get the code</a>
+    </div>
+  </section>
+
+  <section class="terminal" aria-label="Example run">
+    <div class="bar"><i></i><i></i><i></i><span>npm run lesson5</span></div>
+<pre><span class="t-you">email</span>  my order TS-48213 arrived today and the big mug is cracked…
+
+<span class="t-dim">── first draft ─────────────────────────────</span>
+<span class="t-mag">writer</span> We'll send you a new one today, and we'll also refund the
+       mug within 24 hours so you're not out of pocket.
+<span class="t-red">✗ R1</span> <span class="t-dim">"refund the mug within 24 hours" → replacement or refund, not both</span>
+<span class="t-red">✗ R2</span> <span class="t-dim">"We'll send you a new one today" → don't promise a dispatch day</span>
+<span class="t-red">✗ R3</span> <span class="t-dim">no photo requested → ask for a photo of the crack</span>
+<span class="t-dim">── one targeted revision ─────────────────────────────</span>
+<span class="t-mag">writer</span> Could you send us a photo of the crack? As soon as we have it,
+       we'll send you a new mug free of charge…
+<span class="t-green">✓ checker: no problems</span>
+
+<span class="t-yel">Ready for a person to read, edit and send. Nothing has been sent.</span></pre>
+  </section>
+
+  <section class="points">
+    <div><h3>A real app, not snippets</h3><p>A small support desk with an inbox, a reply box and a weekly report. Run it with <code>npm start</code> and click the buttons.</p></div>
+    <div><h3>No API key to start</h3><p>Replay mode uses pre-written answers for the sample emails. Add a key to run every button live against Claude.</p></div>
+    <div><h3>Built to be trusted</h3><p>Schemas, checks in plain code, "unknown" as an answer, a person in charge, fallbacks, and a small eval suite.</p></div>
+  </section>
+
+  <section>
+    <h2>The lessons</h2>
+    <div class="cards"><a class="card" href="01-tidy-up.html">
+      <span class="num">1</span>
+      <span class="card-title">Tidy up</span>
+      <span class="card-sub">Suggest edits, let people pick, apply with plain code.</span>
+    </a>
+<a class="card" href="02-fill-from-email.html">
+      <span class="num">2</span>
+      <span class="card-title">Fill from email</span>
+      <span class="card-sub">Messy email in, form fields out. Unknown stays unknown.</span>
+    </a>
+<a class="card" href="03-route-it.html">
+      <span class="num">3</span>
+      <span class="card-title">Route it</span>
+      <span class="card-sub">A cheap model sorts, code routes, a specialist answers.</span>
+    </a>
+<a class="card" href="04-weekly-themes.html">
+      <span class="num">4</span>
+      <span class="card-title">This week's themes</span>
+      <span class="card-sub">Fan out over 24 tickets, combine, let code count.</span>
+    </a>
+<a class="card" href="05-draft-and-check.html">
+      <span class="num">5</span>
+      <span class="card-title">Draft and check</span>
+      <span class="card-sub">Writer, rule checker, one targeted fix, then a person.</span>
+    </a>
+<a class="card" href="06-ship-it.html">
+      <span class="num">6</span>
+      <span class="card-title">Ship it</span>
+      <span class="card-sub">Prompt injection, failures, cost per click, evals.</span>
+    </a>
+<a class="card" href="07-your-own-button.html">
+      <span class="num">+</span>
+      <span class="card-title">Design your own AI button</span>
+      <span class="card-sub">Five questions for designing your own AI button.</span>
+    </a></div>
+  </section>
+
+  <section class="start">
+    <h2>Run it in a minute</h2>
+<pre><code>git clone https://github.com/georgehanu/ai-buttons.git
+cd ai-buttons
+npm install
+npm start</code></pre>
+    <p>Node.js 20 or newer. Then open <code>http://localhost:3000</code>.</p>
+  </section>
+
+  <section class="author">
+    <div>
+      <h2>Hi, I'm George.</h2>
+      <p>I'm a senior web developer. I teach developers to build software with AI, from useful scripts to app features.
+        Small examples, explained clearly. This is the companion to <a href="https://georgehanu.github.io/the-agent-loop/">The Agent Loop</a>.
+        If it helped, the best thanks is a follow, and tell me which button you built.</p>
+      <a class="btn primary" href="https://x.com/georgehanu">Follow @georgehanu on X</a>
+    </div>
+  </section>
+</main>
+<footer class="foot">
+  <p>Written by <a href="https://x.com/georgehanu">George Hanu</a>. I teach developers to build software with AI: small examples, explained clearly.</p>
+  <p><a href="https://x.com/georgehanu">Follow on X</a> · <a href="https://github.com/georgehanu/ai-buttons">Source on GitHub</a> · MIT licensed</p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Epilogue: Design your own AI button · AI Buttons</title>
+<meta name="description" content="Design your own AI button. Part of AI Buttons: small AI features for real web apps, built as workflows.">
+<meta property="og:title" content="Epilogue: Design your own AI button · AI Buttons">
+<meta property="og:description" content="Design your own AI button. Part of AI Buttons: small AI features for real web apps, built as workflows.">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:creator" content="@georgehanu">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="index.html"><span class="loop">✦</span> AI Buttons</a>
+  <nav class="top-links">
+    <a href="https://github.com/georgehanu/ai-buttons">GitHub</a>
+    <a class="follow" href="https://x.com/georgehanu">Follow @georgehanu</a>
+  </nav>
+</header>
+<div class="layout">
+  <aside class="side"><div class="side-title">Lessons</div><a href="01-tidy-up.html"><span>1</span>Tidy up</a>
+<a href="02-fill-from-email.html"><span>2</span>Fill from email</a>
+<a href="03-route-it.html"><span>3</span>Route it</a>
+<a href="04-weekly-themes.html"><span>4</span>This week's themes</a>
+<a href="05-draft-and-check.html"><span>5</span>Draft and check</a>
+<a href="06-ship-it.html"><span>6</span>Ship it</a>
+<a href="07-your-own-button.html" aria-current="page"><span>+</span>Design your own AI button</a></aside>
+  <main class="lesson"><h1>Epilogue · Design your own AI button</h1>
+<p>You&#39;ve seen five buttons. Here&#39;s the thinking behind all of them, so you can design the sixth for your own app.</p>
+<h2>Start from a chore, not from AI</h2>
+<p>Every button here replaces a small, boring task someone already does by hand:</p>
+<table>
+<thead>
+<tr>
+<th>Chore</th>
+<th>Button</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Rewording a rushed reply</td>
+<td>Tidy up</td>
+</tr>
+<tr>
+<td>Copying details from an email into a form</td>
+<td>Fill from email</td>
+</tr>
+<tr>
+<td>Deciding who handles what</td>
+<td>Route it</td>
+</tr>
+<tr>
+<td>Reading every ticket to spot patterns</td>
+<td>This week&#39;s themes</td>
+</tr>
+<tr>
+<td>Writing the same kind of reply again</td>
+<td>Draft and check</td>
+</tr>
+</tbody></table>
+<p>Look through your app for the same kind of thing: copy-paste, retyping, reading to find one detail, writing a similar text again. That&#39;s where an AI button feels like a normal button.</p>
+<h2>Five questions for any AI button</h2>
+<ol>
+<li><strong>What exactly goes in, and what comes out?</strong> Write the schema first. If you can&#39;t, the feature isn&#39;t clear yet.</li>
+<li><strong>What does &quot;I don&#39;t know&quot; look like?</strong> A null, a &quot;not sure&quot; flag, or &quot;send to a person&quot;. Design it on purpose.</li>
+<li><strong>What does code check?</strong> Formats, ids, counts, &quot;is this quote really in the source?&quot; Anything you can check without AI, check without AI.</li>
+<li><strong>Who decides?</strong> The model proposes. Code or a person makes it happen. Nothing irreversible without a click.</li>
+<li><strong>What happens when it fails?</strong> The page should work without it.</li>
+</ol>
+<h2>Pick the smallest shape that works</h2>
+<p>From simplest to most complex:</p>
+<ol>
+<li><strong>One call</strong> → Tidy up, Fill from email</li>
+<li><strong>Route, then specialist</strong> → Route it</li>
+<li><strong>Fan out, then combine</strong> → This week&#39;s themes</li>
+<li><strong>Write, check, revise once, hand over</strong> → Draft and check</li>
+<li><strong>An agent loop</strong> → only when you can&#39;t write the steps down in advance (see <em>The Agent Loop</em>)</li>
+</ol>
+<p>Most features stop at 1 or 2. Go one step up only when an eval shows it helps.</p>
+<h2>Where to go next</h2>
+<ul>
+<li><em>The Agent Loop</em>, the companion to this repo: <a href="https://georgehanu.github.io/the-agent-loop/">build a mini coding agent</a>, for when you really do need step 5.</li>
+<li>Anthropic, <a href="https://www.anthropic.com/engineering/building-effective-agents"><em>Building effective agents</em></a>. The patterns here, explained by the people who make the model.</li>
+<li>Claude docs on <a href="https://platform.claude.com/docs/en/build-with-claude/structured-outputs">structured outputs</a>, for the schema details.</li>
+</ul>
+<p>Build one button this week. Then tell me about it on X: <a href="https://x.com/georgehanu">@georgehanu</a>. I&#39;d love to see what chore it replaced.</p>
+<aside class="cta"><strong>Found this useful?</strong> I post small, practical AI coding examples most days.
+  <a href="https://x.com/georgehanu">Follow @georgehanu on X</a></aside><nav class="pager"><a href="06-ship-it.html"><small>← Lesson 6</small>Ship it</a></nav></main>
+</div>
+<footer class="foot">
+  <p>Written by <a href="https://x.com/georgehanu">George Hanu</a>. I teach developers to build software with AI: small examples, explained clearly.</p>
+  <p><a href="https://x.com/georgehanu">Follow on X</a> · <a href="https://github.com/georgehanu/ai-buttons">Source on GitHub</a> · MIT licensed</p>
+</footer>
+</body>
+</html>

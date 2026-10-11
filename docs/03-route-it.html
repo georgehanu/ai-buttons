@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 3: Route it · AI Buttons</title>
+<meta name="description" content="Route it. Part of AI Buttons: small AI features for real web apps, built as workflows.">
+<meta property="og:title" content="Lesson 3: Route it · AI Buttons">
+<meta property="og:description" content="Route it. Part of AI Buttons: small AI features for real web apps, built as workflows.">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:creator" content="@georgehanu">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="index.html"><span class="loop">✦</span> AI Buttons</a>
+  <nav class="top-links">
+    <a href="https://github.com/georgehanu/ai-buttons">GitHub</a>
+    <a class="follow" href="https://x.com/georgehanu">Follow @georgehanu</a>
+  </nav>
+</header>
+<div class="layout">
+  <aside class="side"><div class="side-title">Lessons</div><a href="01-tidy-up.html"><span>1</span>Tidy up</a>
+<a href="02-fill-from-email.html"><span>2</span>Fill from email</a>
+<a href="03-route-it.html" aria-current="page"><span>3</span>Route it</a>
+<a href="04-weekly-themes.html"><span>4</span>This week's themes</a>
+<a href="05-draft-and-check.html"><span>5</span>Draft and check</a>
+<a href="06-ship-it.html"><span>6</span>Ship it</a>
+<a href="07-your-own-button.html"><span>+</span>Design your own AI button</a></aside>
+  <main class="lesson"><div class="meta"><span>Run</span><code>npm run lesson3</code><a href="https://github.com/georgehanu/ai-buttons/blob/main/src/features/route.ts">View the code →</a></div><h1>Lesson 3 · Route it</h1>
+<p>One prompt that handles every kind of support email gets long, vague and expensive. &quot;If it&#39;s about shipping do this, if it&#39;s billing do that, unless…&quot; Every email pays for every rule.</p>
+<p>Better: <strong>sort first, then hand it to a specialist.</strong></p>
+<pre><code class="hljs language-text">email ──► classify (fast model) ──► code picks the specialist ──► next steps (smart model)
+                     │
+                     └── not sure? ──► a person
+</code></pre><h2>Step 1: a cheap sort</h2>
+<pre><code class="hljs language-ts"><span class="hljs-keyword">const</span> classification = <span class="hljs-keyword">await</span> askJson&lt;<span class="hljs-title class_">Classification</span>&gt;({
+  <span class="hljs-attr">step</span>: <span class="hljs-string">&quot;classify&quot;</span>,
+  <span class="hljs-attr">model</span>: <span class="hljs-string">&quot;fast&quot;</span>,
+  <span class="hljs-attr">schema</span>: {
+    <span class="hljs-attr">category</span>: { <span class="hljs-attr">enum</span>: [<span class="hljs-string">&quot;shipping&quot;</span>, <span class="hljs-string">&quot;damaged&quot;</span>, <span class="hljs-string">&quot;billing&quot;</span>, <span class="hljs-string">&quot;returns&quot;</span>, <span class="hljs-string">&quot;other&quot;</span>] },
+    <span class="hljs-attr">confident</span>: { <span class="hljs-attr">type</span>: <span class="hljs-string">&quot;boolean&quot;</span>, <span class="hljs-attr">description</span>: <span class="hljs-string">&quot;false if the email fits two categories or none.&quot;</span> },
+    <span class="hljs-attr">reason</span>: { <span class="hljs-attr">type</span>: <span class="hljs-string">&quot;string&quot;</span> },
+  },
+  <span class="hljs-comment">// …</span>
+});
+</code></pre><p>Classification is a small job. The fast model handles it quickly, at a small fraction of the smart model&#39;s price.</p>
+<h2>Step 2: code decides where it goes</h2>
+<pre><code class="hljs language-ts"><span class="hljs-keyword">if</span> (!classification.<span class="hljs-property">confident</span> || classification.<span class="hljs-property">category</span> === <span class="hljs-string">&quot;other&quot;</span>) {
+  <span class="hljs-keyword">return</span> { classification, <span class="hljs-attr">routedTo</span>: <span class="hljs-string">&quot;person&quot;</span>, <span class="hljs-attr">next</span>: <span class="hljs-literal">null</span> };
+}
+<span class="hljs-keyword">const</span> specialist = <span class="hljs-variable constant_">SPECIALISTS</span>[classification.<span class="hljs-property">category</span>];
+</code></pre><p>This is the line that makes it a <strong>workflow</strong>. The model gave an opinion. Your code turned it into a path. Paths are something you can see in the code, test and change.</p>
+<p>Notice the <code>confident</code> flag. When the classifier isn&#39;t sure, we <strong>don&#39;t guess</strong>: a person gets the ticket, with no AI suggestions to anchor them. Wrong routing is worse than no routing, because the specialist will confidently follow the wrong policy.</p>
+<h2>Step 3: a specialist with only what it needs</h2>
+<p>Each specialist gets:</p>
+<ul>
+<li><strong>one focus</strong>, e.g. damaged: <em>&quot;Get a photo first. Offer replacement or refund. The customer keeps the damaged item.&quot;</em></li>
+<li><strong>one section of the policy</strong>, not the whole document.</li>
+</ul>
+<pre><code class="hljs language-ts"><span class="hljs-attr">damaged</span>: { <span class="hljs-attr">policy</span>: <span class="hljs-string">&quot;Damaged items&quot;</span>, <span class="hljs-attr">focus</span>: <span class="hljs-string">&quot;Get a photo first. Offer replacement or refund. …&quot;</span> },
+<span class="hljs-attr">billing</span>: { <span class="hljs-attr">policy</span>: <span class="hljs-string">&quot;Billing&quot;</span>, <span class="hljs-attr">focus</span>: <span class="hljs-string">&quot;Check whether it&#x27;s a pending authorisation before refunding anything. …&quot;</span> },
+</code></pre><p>Shorter prompts mean fewer tokens, but the bigger win is quality. A model that only sees the billing rules can&#39;t mix them up with the returns rules.</p>
+<p>The specialist uses the <strong>smart</strong> model, because its answer is what a person acts on.</p>
+<h2>Run it</h2>
+<pre><code class="hljs language-bash">npm run lesson3
+</code></pre><pre><code class="hljs language-text">broken mug :(
+  damaged  Mug arrived cracked; customer wants a replacement.
+  1. Reply to Ana and ask for a photo of the crack.
+  2. When the photo arrives, send a free replacement mug for order TS-48213.
+  3. Let her know she can keep the damaged mug.
+     ask for: A photo of the crack
+
+  2 calls · 0.3s · replay, no cost
+</code></pre><h2>The pattern, in general</h2>
+<p>Routing is worth it when:</p>
+<ul>
+<li>the inputs fall into <strong>clearly different kinds</strong>, and</li>
+<li>each kind needs <strong>different instructions, data or tools</strong>.</li>
+</ul>
+<p>If every email needs the same handling, skip the router. One good prompt beats two average ones.</p>
+<h2>Try this</h2>
+<ul>
+<li>Add a <code>&quot;wholesale&quot;</code> category with its own specialist. How many lines did it take? (That&#39;s the maintainability win.)</li>
+<li>Send an email that&#39;s both damaged <em>and</em> charged twice. What does <code>confident</code> say? Should one email become two tickets?</li>
+</ul>
+<aside class="cta"><strong>Found this useful?</strong> I post small, practical AI coding examples most days.
+  <a href="https://x.com/georgehanu">Follow @georgehanu on X</a></aside><nav class="pager"><a href="02-fill-from-email.html"><small>← Lesson 2</small>Fill from email</a><a class="next" href="04-weekly-themes.html"><small>Lesson 4 →</small>This week's themes</a></nav></main>
+</div>
+<footer class="foot">
+  <p>Written by <a href="https://x.com/georgehanu">George Hanu</a>. I teach developers to build software with AI: small examples, explained clearly.</p>
+  <p><a href="https://x.com/georgehanu">Follow on X</a> · <a href="https://github.com/georgehanu/ai-buttons">Source on GitHub</a> · MIT licensed</p>
+</footer>
+</body>
+</html>

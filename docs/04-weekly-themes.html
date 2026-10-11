@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 4: This week's themes · AI Buttons</title>
+<meta name="description" content="This week's themes. Part of AI Buttons: small AI features for real web apps, built as workflows.">
+<meta property="og:title" content="Lesson 4: This week's themes · AI Buttons">
+<meta property="og:description" content="This week's themes. Part of AI Buttons: small AI features for real web apps, built as workflows.">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:creator" content="@georgehanu">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="index.html"><span class="loop">✦</span> AI Buttons</a>
+  <nav class="top-links">
+    <a href="https://github.com/georgehanu/ai-buttons">GitHub</a>
+    <a class="follow" href="https://x.com/georgehanu">Follow @georgehanu</a>
+  </nav>
+</header>
+<div class="layout">
+  <aside class="side"><div class="side-title">Lessons</div><a href="01-tidy-up.html"><span>1</span>Tidy up</a>
+<a href="02-fill-from-email.html"><span>2</span>Fill from email</a>
+<a href="03-route-it.html"><span>3</span>Route it</a>
+<a href="04-weekly-themes.html" aria-current="page"><span>4</span>This week's themes</a>
+<a href="05-draft-and-check.html"><span>5</span>Draft and check</a>
+<a href="06-ship-it.html"><span>6</span>Ship it</a>
+<a href="07-your-own-button.html"><span>+</span>Design your own AI button</a></aside>
+  <main class="lesson"><div class="meta"><span>Run</span><code>npm run lesson4</code><a href="https://github.com/georgehanu/ai-buttons/blob/main/src/features/themes.ts">View the code →</a></div><h1>Lesson 4 · This week&#39;s themes</h1>
+<p>The shop owner doesn&#39;t want to read 24 tickets on a Friday. They want: <em>what keeps going wrong, and what should I fix?</em></p>
+<p>One button, three steps:</p>
+<pre><code class="hljs language-text">24 tickets ──► label each one (fast model, 6 at a time)
+           ──► group the labels into themes (smart model, one call)
+           ──► count, sort, check (plain code)
+</code></pre><h2>Step 1: fan out</h2>
+<p>Each ticket is independent, so we label them in parallel:</p>
+<pre><code class="hljs language-ts"><span class="hljs-keyword">const</span> labels = <span class="hljs-keyword">await</span> <span class="hljs-title function_">inBatches</span>(<span class="hljs-variable constant_">WEEK</span>, <span class="hljs-number">6</span>, <span class="hljs-function">(<span class="hljs-params">ticket</span>) =&gt;</span>
+  askJson&lt;<span class="hljs-title class_">Label</span>&gt;({ <span class="hljs-attr">step</span>: <span class="hljs-string">`label #<span class="hljs-subst">${ticket.id}</span>`</span>, <span class="hljs-attr">model</span>: <span class="hljs-string">&quot;fast&quot;</span>, <span class="hljs-attr">schema</span>: <span class="hljs-variable constant_">LABEL_SCHEMA</span>, <span class="hljs-comment">/* … */</span> }),
+);
+</code></pre><p><code>inBatches</code> is ten lines of plain TypeScript: at most 6 requests in flight at once. All 24 at once would hit rate limits. One at a time would take 24× longer.</p>
+<p>Each label is tiny:</p>
+<pre><code class="hljs language-json"><span class="hljs-punctuation">{</span> <span class="hljs-attr">&quot;label&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;arrived cracked again&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;product&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Mug&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;mood&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;upset&quot;</span> <span class="hljs-punctuation">}</span>
+</code></pre><h2>Step 2: combine</h2>
+<p>The smart model never sees the 24 full tickets. It gets 24 short lines:</p>
+<pre><code class="hljs language-text">1. arrived chipped (Mug, upset)
+2. order not arrived (no product, upset)
+3. fits smaller than expected (Hoodie, neutral)
+…
+</code></pre><p>That&#39;s a fraction of the tokens, and a clearer job: <em>group these into 4 to 7 themes a small shop owner can act on.</em> The labelling did the reading. The grouping does the thinking.</p>
+<h2>Step 3: let code count</h2>
+<p>The model returns theme names and ticket ids. <strong>It doesn&#39;t return counts.</strong> We count:</p>
+<pre><code class="hljs language-ts"><span class="hljs-keyword">const</span> seen = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Set</span>&lt;<span class="hljs-built_in">number</span>&gt;();
+<span class="hljs-keyword">const</span> cleaned = themes.<span class="hljs-title function_">map</span>(<span class="hljs-function">(<span class="hljs-params">theme</span>) =&gt;</span> ({
+  ...theme,
+  <span class="hljs-attr">ticket_ids</span>: theme.<span class="hljs-property">ticket_ids</span>.<span class="hljs-title function_">filter</span>(<span class="hljs-function">(<span class="hljs-params">id</span>) =&gt;</span> <span class="hljs-variable constant_">WEEK</span>.<span class="hljs-title function_">some</span>(<span class="hljs-function">(<span class="hljs-params">t</span>) =&gt;</span> t.<span class="hljs-property">id</span> === id) &amp;&amp; !seen.<span class="hljs-title function_">has</span>(id) &amp;&amp; seen.<span class="hljs-title function_">add</span>(id)),
+}));
+<span class="hljs-keyword">const</span> missing = <span class="hljs-variable constant_">WEEK</span>.<span class="hljs-title function_">map</span>(<span class="hljs-function">(<span class="hljs-params">t</span>) =&gt;</span> t.<span class="hljs-property">id</span>).<span class="hljs-title function_">filter</span>(<span class="hljs-function">(<span class="hljs-params">id</span>) =&gt;</span> !seen.<span class="hljs-title function_">has</span>(id));
+<span class="hljs-keyword">if</span> (missing.<span class="hljs-property">length</span>) cleaned.<span class="hljs-title function_">push</span>({ <span class="hljs-attr">name</span>: <span class="hljs-string">&quot;Not grouped&quot;</span>, <span class="hljs-attr">suggestion</span>: <span class="hljs-string">&quot;Read these yourself.&quot;</span>, <span class="hljs-attr">ticket_ids</span>: missing });
+</code></pre><p>That handles all three ways this goes wrong: ids that don&#39;t exist, a ticket put in two themes, and tickets that got dropped. Then we sort by count, in code.</p>
+<p>Language models are bad at counting and great at grouping. Give each job to whatever&#39;s good at it.</p>
+<h2>The result</h2>
+<pre><code class="hljs language-text"> 6 ██████ Slow or stuck deliveries
+     Email tracking at dispatch and chase the courier for orders older than 4 days.
+ 5 █████ Mugs arrive broken
+     Drop-test the mug packaging and add corner protection or a double box.
+ 4 ████ Clothes run small
+     Add a size guide with real measurements to the hoodie and T-shirt pages.
+ …
+</code></pre><p>Five broken mugs in a week isn&#39;t five unlucky customers. It&#39;s a packaging problem. You only see that when the tickets are grouped together.</p>
+<h2>Two models, on purpose</h2>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Model</th>
+<th>Calls</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Label</td>
+<td>fast</td>
+<td>24</td>
+<td>Simple, repetitive, many calls</td>
+</tr>
+<tr>
+<td>Group</td>
+<td>smart</td>
+<td>1</td>
+<td>Judgment, one call, short input</td>
+</tr>
+</tbody></table>
+<p>Most of the calls go to the cheap model, and the one call that needs judgment goes to the strong one.</p>
+<h2>Run it</h2>
+<pre><code class="hljs language-bash">npm run lesson4
+npm start   <span class="hljs-comment"># then the &quot;This week&quot; tab</span>
+</code></pre><h2>Try this</h2>
+<ul>
+<li>Double the tickets to 48. What happens to the cost of step 2? (Barely anything. It only sees labels.)</li>
+<li>Ask the grouping step for counts too, then compare them with your code&#39;s counts on a few live runs.</li>
+</ul>
+<aside class="cta"><strong>Found this useful?</strong> I post small, practical AI coding examples most days.
+  <a href="https://x.com/georgehanu">Follow @georgehanu on X</a></aside><nav class="pager"><a href="03-route-it.html"><small>← Lesson 3</small>Route it</a><a class="next" href="05-draft-and-check.html"><small>Lesson 5 →</small>Draft and check</a></nav></main>
+</div>
+<footer class="foot">
+  <p>Written by <a href="https://x.com/georgehanu">George Hanu</a>. I teach developers to build software with AI: small examples, explained clearly.</p>
+  <p><a href="https://x.com/georgehanu">Follow on X</a> · <a href="https://github.com/georgehanu/ai-buttons">Source on GitHub</a> · MIT licensed</p>
+</footer>
+</body>
+</html>
