@@ -8,6 +8,12 @@ import hljs from "highlight.js";
 
 const REPO = "https://github.com/georgehanu/ai-buttons";
 const X = "https://x.com/georgehanu";
+const SITE = "https://georgehanu.github.io/ai-buttons/";
+// The share image is built by the hub (georgehanu.github.io, scripts/og.mjs) from its guide
+// data, so every guide's link preview uses the same template. The index and every lesson use it.
+const OG_IMAGE = "https://georgehanu.github.io/og/guides/ai-buttons.png";
+const OG_IMAGE_ALT =
+  "AI Buttons: Small AI features for real apps, built as workflows with a human in the loop. Coding with AI, by George Hanu.";
 const root = new URL("../", import.meta.url);
 const out = new URL("docs/", root);
 mkdirSync(out, { recursive: true });
@@ -58,7 +64,24 @@ function rewriteLinks(html) {
     .replace(/href="\.\.\/(src|evals|public)\/([^"]*)"/g, `href="${REPO}/blob/main/$1/$2"`);
 }
 
+const attr = (text) => String(text).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+
 function page({ title, description, body, current }) {
+  const url = current === "index" ? SITE : `${SITE}${current}.html`;
+  const social = `<meta property="og:type" content="website">
+<meta property="og:url" content="${url}">
+<meta property="og:title" content="${attr(title)}">
+<meta property="og:description" content="${attr(description)}">
+<meta property="og:image" content="${OG_IMAGE}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="${attr(OG_IMAGE_ALT)}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@georgehanu">
+<meta name="twitter:title" content="${attr(title)}">
+<meta name="twitter:description" content="${attr(description)}">
+<meta name="twitter:image" content="${OG_IMAGE}">
+<meta name="twitter:image:alt" content="${attr(OG_IMAGE_ALT)}">`;
   const nav = lessons
     .map((l) => `<a href="${l.slug}.html"${l.slug === current ? ' aria-current="page"' : ""}><span>${num(l)}</span>${l.title}</a>`)
     .join("\n");
@@ -70,10 +93,7 @@ function page({ title, description, body, current }) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${title}</title>
 <meta name="description" content="${description}">
-<meta property="og:title" content="${title}">
-<meta property="og:description" content="${description}">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:creator" content="@georgehanu">
+${social}
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
